@@ -1,0 +1,10 @@
+{
+	"id": "redplanethq-core",
+	"name": "CORE Sync",
+	"version": "0.1.0",
+	"minAppVersion": "1.5.0",
+	"description": "Sync selected Obsidian notes to CORE as episodes.",
+	"author": "Core",
+	"authorUrl": "https://heysol.ai/core",
+	"isDesktopOnly": false
+}
