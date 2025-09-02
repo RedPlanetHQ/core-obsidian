@@ -56,6 +56,7 @@ export default class CoreSyncPlugin extends Plugin {
 
 		this.registerEvent(
 			this.app.vault.on("modify", async (f) => {
+				console.log("modified");
 				if (!(f instanceof TFile) || !this.settings.autoSyncOnModify)
 					return;
 				await this.syncFile(f);

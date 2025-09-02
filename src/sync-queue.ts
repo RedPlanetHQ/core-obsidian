@@ -6,6 +6,7 @@ export class SyncQueue {
 		private app: App,
 		private client: { ingest: (p: any) => Promise<any> }
 	) {}
+
 	enqueue(item: any) {
 		const q = this.read();
 		q.push({ item, ts: Date.now() });
@@ -14,6 +15,7 @@ export class SyncQueue {
 	async flushLater() {
 		setTimeout(() => this.flush().catch(() => {}), 3000);
 	}
+
 	async flush() {
 		const q = this.read();
 		const remain: any[] = [];
@@ -26,9 +28,11 @@ export class SyncQueue {
 		}
 		this.write(remain);
 	}
+
 	private read() {
 		return JSON.parse(localStorage.getItem(this.key) ?? "[]");
 	}
+
 	private write(q: any[]) {
 		localStorage.setItem(this.key, JSON.stringify(q));
 	}

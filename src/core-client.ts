@@ -19,7 +19,7 @@ export class CoreClient {
 
 		const episode = {
 			episodeBody: payload.episode.content.replace("core.sync: true", ""),
-			referenceTime: payload.episode.updatedAt,
+			referenceTime: new Date(payload.episode.updatedAt).toISOString(),
 			source: "OBSIDIAN",
 			documentId: getDocumentId(
 				payload.episode.path,
