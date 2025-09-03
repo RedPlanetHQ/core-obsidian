@@ -7,26 +7,37 @@ import {
 	Notice,
 	TFile,
 	CachedMetadata,
+	debounce,
 } from "obsidian";
 import { CoreClient } from "./src/core-client";
 import { SyncQueue } from "./src/sync-queue";
+import { CORE_VIEW_TYPE } from "./src/constants";
+import { CoreRightView } from "./src/CoreRightView";
 
 interface CoreSyncSettings {
 	endpoint: string; // e.g., http://localhost:4000/mcp/memory/ingest
 	apiKey: string;
 	autoSyncOnModify: boolean;
+	autoOpenPanel: boolean;
 }
 
 const DEFAULT_SETTINGS: CoreSyncSettings = {
 	endpoint: "",
 	apiKey: "",
 	autoSyncOnModify: false,
+	autoOpenPanel: true,
 };
 
 export default class CoreSyncPlugin extends Plugin {
 	settings: CoreSyncSettings;
 	client!: CoreClient;
 	queue!: SyncQueue;
+	view?: CoreRightView;
+	private debouncedRefresh = debounce(
+		() => this.view?.refreshFromActiveNote(),
+		500,
+		true
+	);
 
 	async onload() {
 		this.settings = Object.assign(
@@ -36,6 +47,15 @@ export default class CoreSyncPlugin extends Plugin {
 		);
 		this.client = new CoreClient(this.settings);
 		this.queue = new SyncQueue(this.app, this.client);
+
+		// Register the view
+		this.registerView(CORE_VIEW_TYPE, (leaf) => {
+			this.view = new CoreRightView(leaf, {
+				endpoint: this.settings.endpoint,
+				apiKey: this.settings.apiKey,
+			});
+			return this.view;
+		});
 
 		this.addSettingTab(new CoreSyncSettingTab(this.app, this));
 
@@ -54,12 +74,33 @@ export default class CoreSyncPlugin extends Plugin {
 			callback: async () => this.syncAllMarkedNotes(),
 		});
 
+		// Command to open/right-dock the panel
+		this.addCommand({
+			id: "open-core-right-panel",
+			name: "Open CORE Panel",
+			callback: async () => {
+				const leaf = this.app.workspace.getRightLeaf(false) as any;
+				await leaf.setViewState({ type: CORE_VIEW_TYPE, active: true });
+				this.app.workspace.revealLeaf(leaf);
+			},
+		});
+
 		this.registerEvent(
 			this.app.vault.on("modify", async (f) => {
 				console.log("modified");
 				if (!(f instanceof TFile) || !this.settings.autoSyncOnModify)
 					return;
 				await this.syncFile(f);
+			})
+		);
+
+		// Update React panel when file opened or modified
+		this.registerEvent(
+			this.app.workspace.on("file-open", () => this.debouncedRefresh())
+		);
+		this.registerEvent(
+			this.app.vault.on("modify", (f) => {
+				if (f instanceof TFile) this.debouncedRefresh();
 			})
 		);
 
@@ -104,6 +145,7 @@ export default class CoreSyncPlugin extends Plugin {
 	}
 
 	async onunload() {
+		this.app.workspace.detachLeavesOfType(CORE_VIEW_TYPE);
 		await this.saveData(this.settings);
 	}
 }
@@ -170,5 +212,23 @@ class CoreSyncSettingTab extends PluginSettingTab {
 					await this.plugin.saveData(this.plugin.settings);
 				})
 		);
+
+		new Setting(containerEl)
+			.setName("Auto open CORE panel")
+			.addToggle((t) =>
+				t
+					.setValue(this.plugin.settings.autoOpenPanel)
+					.onChange(async (v) => {
+						this.plugin.settings.autoOpenPanel = v;
+						await this.plugin.saveData(this.plugin.settings);
+						// Update the view config when settings change
+						if (this.plugin.view) {
+							this.plugin.view.updateConfig(
+								this.plugin.settings.endpoint,
+								this.plugin.settings.apiKey
+							);
+						}
+					})
+			);
 	}
 }

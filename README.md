@@ -1,31 +1,61 @@
-# CORE Sync Plugin for Obsidian
+# Obsidian CORE Sync Plugin
 
-The CORE Sync plugin for Obsidian allows you to seamlessly integrate your notes with the CORE platform. This plugin provides powerful features to ensure your notes are always up-to-date and accessible within CORE.
+> Sync your Obsidian notes with [CORE](https://heysol.ai/core) (Contextual Observation & Recall Engine) and get **memory-aware answers** directly inside Obsidian.
 
-## Features
+---
 
-1. **Add Any Page to CORE with a Command**:
+## ✨ What it does
 
-    - Easily sync any page from your Obsidian vault to CORE using a simple command. This feature allows you to manually select and sync specific notes that you want to be available in CORE.
+-   **Sync Notes**: Push selected notes (or entire vault sections) into CORE as _Episodes_.
+-   **Right-Side Panel**: Opens a dedicated panel in Obsidian that sends the current note’s content to CORE and shows **relevant results, links, or summaries**.
+-   **Frontmatter Control**: Decide which notes to sync by adding simple YAML flags.
+-   **Offline Safe**: Failed syncs are queued locally and retried automatically.
 
-2. **Auto Sync When Page is Modified**:
-    - Enable automatic synchronization of your notes whenever they are modified. This ensures that any changes you make in Obsidian are promptly reflected in CORE, keeping your data consistent and up-to-date.
+---
 
-## Getting Started
+## Configuration
 
-To start using the CORE Sync plugin, follow these steps:
+-   Go to Settings → CORE Sync to configure:
+-   CORE Endpoint: Your CORE ingest/search API (e.g. https://core.heysol.ai).
+-   API Key: Token for authenticating with CORE.
+-   Auto-sync on modify: If enabled, every note edit will sync automatically.
 
-1. **Installation**:
+---
 
-    - Download and install the plugin from the Obsidian community plugins directory.
+## 🛠️ Usage
 
-2. **Configuration**:
+1. **Mark a note for sync**
 
-    - Set up your CORE endpoint and API key in the plugin settings to enable communication with the CORE platform.
+    Add the following frontmatter at the top of a note to mark it for synchronization:
 
-3. **Usage**:
-    - Use the command palette in Obsidian to sync individual notes or enable auto-sync for continuous updates.
+    ```yaml
+    ---
+    core.sync: true
+    ---
+    ```
 
-For more detailed instructions and support, please visit the [CORE Sync Plugin Documentation](https://heysol.ai/core).
+2. **Sync manually**
 
-Enjoy seamless integration between Obsidian and CORE with the CORE Sync plugin!
+    To sync a note manually, open the command palette (Cmd/Ctrl + P) and run:
+
+    - "Sync current note to CORE" to sync the currently open note.
+    - "Sync all notes with core.sync=true" to sync all notes marked for synchronization.
+
+3. **Right-Side CORE Panel**
+
+    Open the CORE Panel by running "Open CORE Panel" from the command palette. This will open a new tab on the right side of Obsidian. When you open or edit a note, the plugin will automatically send its content to CORE and display:
+
+---
+
+## 🚀 Installation
+
+### Local development
+
+1. Clone this repo into your Obsidian vault under `.obsidian/plugins/`:
+    ```bash
+    cd <your-vault>/.obsidian/plugins
+    git clone https://github.com/yourname/obsidian-core-sync
+    cd obsidian-core-sync
+    pnpm install
+    pnpm run build
+    ```
