@@ -77,9 +77,17 @@ export default class CoreSyncPlugin extends Plugin {
 			id: "open-core-right-panel",
 			name: "Open CORE Panel",
 			callback: async () => {
-				const leaf = this.app.workspace.getRightLeaf(false) as any;
-				await leaf.setViewState({ type: CORE_VIEW_TYPE, active: true });
-				this.app.workspace.revealLeaf(leaf);
+				// Check if the panel already exists
+				const existingLeaf = this.app.workspace.getLeavesOfType(CORE_VIEW_TYPE)?.[0];
+				if (existingLeaf) {
+					// If panel exists, just reveal it
+					this.app.workspace.revealLeaf(existingLeaf);
+				} else {
+					// If panel doesn't exist, create a new one
+					const leaf = this.app.workspace.getRightLeaf(false) as any;
+					await leaf.setViewState({ type: CORE_VIEW_TYPE, active: true });
+					this.app.workspace.revealLeaf(leaf);
+				}
 			},
 		});
 

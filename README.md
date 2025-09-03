@@ -51,11 +51,10 @@
 
 ### Local development
 
-1. Clone this repo into your Obsidian vault under `.obsidian/plugins/`:
-    ```bash
-    cd <your-vault>/.obsidian/plugins
-    git clone https://github.com/yourname/obsidian-core-sync
-    cd obsidian-core-sync
-    pnpm install
-    pnpm run build
-    ```
+1. Download the latest release assets from [core-obsidian v0.1.0](https://github.com/RedPlanetHQ/core-obsidian/releases/tag/0.1.0) and extract them into your Obsidian vault under `.obsidian/plugins/obsidian-core-sync/`:
+
+    - Ensure the directory contains `main.js`, `style.css`, and `manifest.json`.
+
+2. Enable the plugin in Obsidian:
+    - Go to **Settings** → **Community plugins**
+    - Find "CORE Sync" and toggle it on
