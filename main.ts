@@ -18,14 +18,12 @@ interface CoreSyncSettings {
 	endpoint: string; // e.g., http://localhost:4000/mcp/memory/ingest
 	apiKey: string;
 	autoSyncOnModify: boolean;
-	autoOpenPanel: boolean;
 }
 
 const DEFAULT_SETTINGS: CoreSyncSettings = {
 	endpoint: "",
 	apiKey: "",
 	autoSyncOnModify: false,
-	autoOpenPanel: true,
 };
 
 export default class CoreSyncPlugin extends Plugin {
@@ -212,23 +210,5 @@ class CoreSyncSettingTab extends PluginSettingTab {
 					await this.plugin.saveData(this.plugin.settings);
 				})
 		);
-
-		new Setting(containerEl)
-			.setName("Auto open CORE panel")
-			.addToggle((t) =>
-				t
-					.setValue(this.plugin.settings.autoOpenPanel)
-					.onChange(async (v) => {
-						this.plugin.settings.autoOpenPanel = v;
-						await this.plugin.saveData(this.plugin.settings);
-						// Update the view config when settings change
-						if (this.plugin.view) {
-							this.plugin.view.updateConfig(
-								this.plugin.settings.endpoint,
-								this.plugin.settings.apiKey
-							);
-						}
-					})
-			);
 	}
 }

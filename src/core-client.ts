@@ -21,10 +21,11 @@ export class CoreClient {
 			episodeBody: payload.episode.content.replace("core.sync: true", ""),
 			referenceTime: new Date(payload.episode.updatedAt).toISOString(),
 			source: "OBSIDIAN",
-			documentId: getDocumentId(
+			sessionId: getDocumentId(
 				payload.episode.path,
 				payload.episode.createdAt
 			),
+			type: "DOCUMENT",
 		};
 
 		return ky

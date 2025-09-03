@@ -14,7 +14,7 @@ export const useTriggerStream = (
 	}, []);
 
 	const startStreaming = () => {
-		const adjustedApiURL = "http://localhost:8030";
+		const adjustedApiURL = "https://trigger.heysol.ai";
 		const eventSource = new EventSource(
 			`${adjustedApiURL}/realtime/v1/streams/${runId}/messages`,
 			{
