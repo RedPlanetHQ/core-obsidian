@@ -6,3 +6,42 @@ available in the app when your plugin is enabled.
 If your plugin does not need CSS, delete this file.
 
 */
+
+/* CorePanel styles */
+.core-panel-container {
+	padding: 0.5rem;
+	margin-bottom: 0.5rem;
+}
+
+.core-panel-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.core-panel-title {
+	margin: 0;
+}
+
+.core-panel-error {
+	color: red;
+}
+
+/* StreamingSearch styles */
+.streaming-search-container {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.streaming-search-content {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	margin-top: 10px;
+}
+
+.streaming-search-loading {
+	color: var(--text-foreground);
+	font-style: italic;
+}

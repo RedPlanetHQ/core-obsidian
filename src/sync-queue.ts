@@ -1,13 +1,10 @@
-import { App, TAbstractFile } from "obsidian";
+import { Payload } from "./types";
 
 export class SyncQueue {
 	private key = "core-sync-queue";
-	constructor(
-		private app: App,
-		private client: { ingest: (p: any) => Promise<any> }
-	) {}
+	constructor(private client: { ingest: (p: Payload) => Promise<any> }) {}
 
-	enqueue(item: any) {
+	enqueue(item: Payload) {
 		const q = this.read();
 		q.push({ item, ts: Date.now() });
 		this.write(q);
@@ -18,7 +15,7 @@ export class SyncQueue {
 
 	async flush() {
 		const q = this.read();
-		const remain: any[] = [];
+		const remain = [];
 		for (const entry of q) {
 			try {
 				await this.client.ingest(entry.item);
@@ -33,7 +30,7 @@ export class SyncQueue {
 		return JSON.parse(localStorage.getItem(this.key) ?? "[]");
 	}
 
-	private write(q: any[]) {
+	private write(q: Payload[]) {
 		localStorage.setItem(this.key, JSON.stringify(q));
 	}
 }

@@ -7,7 +7,7 @@ export const useTriggerStream = (
 	afterStreaming?: (finalMessage: string) => void
 ) => {
 	const [message, setMessage] = useState("");
-	const [error, setError] = useState<Error | null>(null);
+	const [error, setError] = useState<ErrorEvent | null>(null);
 
 	useEffect(() => {
 		startStreaming();
@@ -34,8 +34,8 @@ export const useTriggerStream = (
 				const extractedContent =
 					event.data
 						.match(/"([^"]*)"/g)
-						?.map((str: any) =>
-							str.replace(/"/g, "").replaceAll(/\\n/g, "")
+						?.map((str: string) =>
+							str.replace(/"/g, "").replace(/\\n/g, "")
 						)
 						.join(" ") || "";
 				setMessage((prevMessage) => prevMessage + extractedContent);
@@ -44,9 +44,9 @@ export const useTriggerStream = (
 			}
 		};
 
-		eventSource.onerror = (err) => {
+		eventSource.onerror = (err: ErrorEvent) => {
 			console.error("EventSource failed:", err);
-			setError(err as any);
+			setError(err as ErrorEvent);
 			eventSource.close();
 			if (afterStreaming) {
 				afterStreaming(message);

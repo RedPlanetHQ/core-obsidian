@@ -8,11 +8,12 @@ import {
 	TFile,
 	CachedMetadata,
 	debounce,
+	WorkspaceLeaf,
 } from "obsidian";
 import { CoreClient } from "./src/core-client";
 import { SyncQueue } from "./src/sync-queue";
 import { CORE_VIEW_TYPE } from "./src/constants";
-import { CoreRightView } from "./src/CoreRightView";
+import { CoreRightView } from "./src/core-right-view";
 
 interface CoreSyncSettings {
 	endpoint: string; // e.g., http://localhost:4000/mcp/memory/ingest
@@ -44,7 +45,7 @@ export default class CoreSyncPlugin extends Plugin {
 			await this.loadData()
 		);
 		this.client = new CoreClient(this.settings);
-		this.queue = new SyncQueue(this.app, this.client);
+		this.queue = new SyncQueue(this.client);
 
 		// Register the view
 		this.registerView(CORE_VIEW_TYPE, (leaf) => {
@@ -78,14 +79,20 @@ export default class CoreSyncPlugin extends Plugin {
 			name: "Open CORE Panel",
 			callback: async () => {
 				// Check if the panel already exists
-				const existingLeaf = this.app.workspace.getLeavesOfType(CORE_VIEW_TYPE)?.[0];
+				const existingLeaf =
+					this.app.workspace.getLeavesOfType(CORE_VIEW_TYPE)?.[0];
 				if (existingLeaf) {
 					// If panel exists, just reveal it
 					this.app.workspace.revealLeaf(existingLeaf);
 				} else {
 					// If panel doesn't exist, create a new one
-					const leaf = this.app.workspace.getRightLeaf(false) as any;
-					await leaf.setViewState({ type: CORE_VIEW_TYPE, active: true });
+					const leaf = this.app.workspace.getRightLeaf(
+						false
+					) as WorkspaceLeaf;
+					await leaf.setViewState({
+						type: CORE_VIEW_TYPE,
+						active: true,
+					});
 					this.app.workspace.revealLeaf(leaf);
 				}
 			},
@@ -151,7 +158,6 @@ export default class CoreSyncPlugin extends Plugin {
 	}
 
 	async onunload() {
-		this.app.workspace.detachLeavesOfType(CORE_VIEW_TYPE);
 		await this.saveData(this.settings);
 	}
 }

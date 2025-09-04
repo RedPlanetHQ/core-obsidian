@@ -1,7 +1,7 @@
-import { ItemView, WorkspaceLeaf, requestUrl } from "obsidian";
+import { ItemView, WorkspaceLeaf } from "obsidian";
 import * as React from "react";
 import * as ReactDOM from "react-dom/client";
-import { CorePanel, CoreHit } from "./CorePanel";
+import { CorePanel } from "./core-panel";
 import { CORE_VIEW_ICON, CORE_VIEW_NAME, CORE_VIEW_TYPE } from "./constants";
 import ky from "ky";
 
@@ -112,7 +112,7 @@ export class CoreRightView extends ItemView {
 				error: undefined,
 				lastQueryKey: queryKey,
 			};
-		} catch (e: any) {
+		} catch (e) {
 			this.state = {
 				loading: false,
 				id: undefined,

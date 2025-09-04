@@ -48,26 +48,12 @@ export const StreamingSearch = ({
 	}, [message]);
 
 	return (
-		<div
-			style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
-		>
-			<div
-				style={{
-					display: "flex",
-					flexDirection: "column",
-					gap: "0.25rem",
-					marginTop: "10px",
-				}}
-			>
+		<div className="streaming-search-container">
+			<div className="streaming-search-content">
 				{message ? (
 					<>{message}</>
 				) : (
-					<div
-						style={{
-							color: "var(--text-foreground)",
-							fontStyle: "italic",
-						}}
-					>
+					<div className="streaming-search-loading">
 						{loadingText}
 					</div>
 				)}

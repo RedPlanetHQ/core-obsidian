@@ -1,6 +1,7 @@
 import ky from "ky";
 
 import * as crypto from "crypto";
+import { Payload } from "./types";
 
 // input: file path (string), plus maybe createdAt (number)
 // output: stable sessionId (base64url hash)
@@ -14,7 +15,7 @@ export function getDocumentId(path: string, createdAt: number): string {
 
 export class CoreClient {
 	constructor(private cfg: { endpoint: string; apiKey: string }) {}
-	async ingest(payload: any) {
+	async ingest(payload: Payload) {
 		if (!this.cfg.endpoint) throw new Error("No CORE endpoint configured");
 
 		const episode = {

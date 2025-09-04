@@ -1,4 +1,3 @@
-import * as React from "react";
 import { StreamingSearch } from "./streaming-search";
 
 export type CoreHit = { title: string; snippet?: string; url?: string };
@@ -19,18 +18,12 @@ export function CorePanel(props: {
 	}
 
 	return (
-		<div style={{ padding: "0.5rem", marginBottom: "0.5rem" }}>
-			<div
-				style={{
-					display: "flex",
-					alignItems: "center",
-					justifyContent: "space-between",
-				}}
-			>
-				<h3 style={{ margin: 0 }}>CORE Results</h3>
+		<div className="core-panel-container">
+			<div className="core-panel-header">
+				<h3 className="core-panel-title">CORE Results</h3>
 			</div>
 			{loading && <div>Searching…</div>}
-			{error && <div style={{ color: "red" }}>Error: {error}</div>}
+			{error && <div className="core-panel-error">Error: {error}</div>}
 
 			<StreamingSearch
 				runId={id}
