@@ -34,9 +34,7 @@ export const useTriggerStream = (
 				const extractedContent =
 					event.data
 						.match(/"([^"]*)"/g)
-						?.map((str: string) =>
-							str.replace(/"/g, "").replace(/\\n/g, "")
-						)
+						?.map((str: string) => str.replace(/"/g, "").replace(/\\n/g, "\n"))
 						.join(" ") || "";
 				setMessage((prevMessage) => prevMessage + extractedContent);
 			} catch (e) {

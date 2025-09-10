@@ -43,6 +43,9 @@ export class CoreRightView extends ItemView {
 		const host = container.createDiv({ cls: "core-panel-host" });
 		this.root = ReactDOM.createRoot(host);
 		this.render();
+		
+		// Automatically check for active note and run streaming
+		await this.refreshFromActiveNote();
 	}
 
 	async onClose(): Promise<void> {
@@ -68,13 +71,15 @@ export class CoreRightView extends ItemView {
 
 	async refreshFromActiveNote() {
 		const file = this.app.workspace.getActiveFile();
+		this.state = {
+			loading: false,
+			id: undefined,
+			token: undefined,
+			error: undefined,
+		};
+		this.render();
+
 		if (!file || file.extension !== "md") {
-			this.state = {
-				loading: false,
-				id: undefined,
-				token: undefined,
-				error: undefined,
-			};
 			return this.render();
 		}
 		const content = await this.app.vault.read(file);
