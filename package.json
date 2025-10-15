@@ -1,6 +1,6 @@
 {
 	"name": "redplanethq-core",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"description": "Sync your notes with CORE and get relevant results in the sidebar.",
 	"main": "main.js",
 	"scripts": {

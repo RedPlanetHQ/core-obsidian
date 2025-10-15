@@ -70,7 +70,6 @@ export const StreamingSearch = ({
 
 	const showNoResults = hasFinished && !message && !error;
 
-	console.log(message);
 	return (
 		<div className="streaming-search-container">
 			<div className="streaming-search-content">

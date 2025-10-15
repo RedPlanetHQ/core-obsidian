@@ -43,7 +43,7 @@ export class CoreRightView extends ItemView {
 		const host = container.createDiv({ cls: "core-panel-host" });
 		this.root = ReactDOM.createRoot(host);
 		this.render();
-		
+
 		// Automatically check for active note and run streaming
 		await this.refreshFromActiveNote();
 	}
@@ -96,9 +96,10 @@ export class CoreRightView extends ItemView {
 
 		try {
 			const res = await ky
-				.post(`${this.endpoint}/api/v1/extension-search`, {
+				.post(`${this.endpoint}/api/v1/deep-search`, {
 					json: {
-						input: content,
+						content,
+						stream: false,
 					},
 					headers: { Authorization: `Bearer ${this.apiKey}` },
 					timeout: 10_000,

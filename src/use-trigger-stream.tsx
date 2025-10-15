@@ -31,12 +31,13 @@ export const useTriggerStream = (
 
 		eventSource.onmessage = (event) => {
 			try {
-				const extractedContent =
-					event.data
-						.match(/"([^"]*)"/g)
-						?.map((str: string) => str.replace(/"/g, "").replace(/\\n/g, "\n"))
-						.join(" ") || "";
-				setMessage((prevMessage) => prevMessage + extractedContent);
+				const eventData = JSON.parse(event.data);
+
+				if (eventData.type.includes("MESSAGE_")) {
+					setMessage(
+						(prevMessage) => prevMessage + eventData.message
+					);
+				}
 			} catch (e) {
 				console.error("Failed to parse message:", e);
 			}
