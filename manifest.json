@@ -1,7 +1,7 @@
 {
 	"id": "redplanethq-core",
 	"name": "CORE Sync",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"minAppVersion": "1.5.0",
 	"description": "Sync your notes with CORE and get relevant results in the sidebar.",
 	"author": "Core",
