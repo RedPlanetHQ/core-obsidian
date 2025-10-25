@@ -10,21 +10,23 @@ import {
 	debounce,
 	WorkspaceLeaf,
 } from "obsidian";
-import { CoreClient } from "./src/core-client";
-import { SyncQueue } from "./src/sync-queue";
-import { CORE_VIEW_TYPE } from "./src/constants";
-import { CoreRightView } from "./src/core-right-view";
+import {CoreClient} from "./src/core-client";
+import {SyncQueue} from "./src/sync-queue";
+import {CORE_VIEW_TYPE} from "./src/constants";
+import {CoreRightView} from "./src/core-right-view";
 
 interface CoreSyncSettings {
 	endpoint: string; // e.g., http://localhost:4000/mcp/memory/ingest
 	apiKey: string;
 	autoSyncOnModify: boolean;
+	syncEntireVault: boolean;
 }
 
 const DEFAULT_SETTINGS: CoreSyncSettings = {
 	endpoint: "",
 	apiKey: "",
-	autoSyncOnModify: false,
+	autoSyncOnModify: true,
+	syncEntireVault: false,
 };
 
 export default class CoreSyncPlugin extends Plugin {
@@ -73,6 +75,12 @@ export default class CoreSyncPlugin extends Plugin {
 			callback: async () => this.syncAllMarkedNotes(),
 		});
 
+		this.addCommand({
+			id: "core-sync-vault",
+			name: "Sync all notes in the vault",
+			callback: async () => this.syncAllNotes(),
+		});
+
 		// Command to open/right-dock the panel
 		this.addCommand({
 			id: "open-core-right-panel",
@@ -101,7 +109,7 @@ export default class CoreSyncPlugin extends Plugin {
 		this.registerEvent(
 			this.app.vault.on("modify", async (f) => {
 				console.log("modified");
-				if (!(f instanceof TFile) || !this.settings.autoSyncOnModify)
+				if (!(f instanceof TFile) || !this.settings.autoSyncOnModify || !this.settings.syncEntireVault)
 					return;
 				await this.syncFile(f);
 			})
@@ -124,16 +132,16 @@ export default class CoreSyncPlugin extends Plugin {
 	async syncFile(file: TFile) {
 		const cache = this.app.metadataCache.getFileCache(file);
 		const fm = cache?.frontmatter ?? {};
-		const shouldSync =
-			fm["core.sync"] === true || fm["core.sync"] === "true";
+		const shouldSync = this.settings.syncEntireVault ||
+			(fm["core.sync"] === true || fm["core.sync"] === "true");
 
 		if (!shouldSync) {
-			new Notice("CORE: skipping (core.sync not enabled)");
+			new Notice("CORE: skipping (neither core.sync nor syncEntireVault are enabled)");
 			return;
 		}
 
 		const content = await this.app.vault.read(file);
-		const payload = buildCorePayload({ file, cache, content });
+		const payload = buildCorePayload({file, cache, content});
 
 		try {
 			await this.client.ingest(payload);
@@ -157,6 +165,12 @@ export default class CoreSyncPlugin extends Plugin {
 		new Notice(`CORE: scheduled ${toSync.length} files`);
 	}
 
+	async syncAllNotes() {
+		const files = this.app.vault.getMarkdownFiles();
+		for (const f of files) await this.syncFile(f);
+		new Notice(`CORE: scheduled ${files.length} files`);
+	}
+
 	async onunload() {
 		await this.saveData(this.settings);
 	}
@@ -167,7 +181,7 @@ function buildCorePayload(args: {
 	cache?: CachedMetadata | null;
 	content: string;
 }) {
-	const { file, cache, content } = args;
+	const {file, cache, content} = args;
 	const title = file.basename;
 	const createdAt = file.stat.ctime;
 	const updatedAt = file.stat.mtime;
@@ -187,12 +201,14 @@ function buildCorePayload(args: {
 
 class CoreSyncSettingTab extends PluginSettingTab {
 	plugin: CoreSyncPlugin;
+
 	constructor(app: App, plugin: CoreSyncPlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}
+
 	display(): void {
-		const { containerEl } = this;
+		const {containerEl} = this;
 		containerEl.empty();
 
 		new Setting(containerEl).setName("CORE Endpoint").addText((t) =>
@@ -224,5 +240,17 @@ class CoreSyncSettingTab extends PluginSettingTab {
 					await this.plugin.saveData(this.plugin.settings);
 				})
 		);
+
+		new Setting(containerEl).setName("Sync Entire Vault").setDesc("This setting syncs all notes whether or not a note contains core.sync property\n and toggles on 'Auto Sync on modify' as default on restart. You can always turn it off in this page").addToggle((t) =>
+			t
+				.setValue(this.plugin.settings.syncEntireVault)
+				.onChange(async (v) => {
+					this.plugin.settings.syncEntireVault = v;
+					await this.plugin.saveData(this.plugin.settings);
+				})
+		).then(_ => {
+			this.plugin.settings.autoSyncOnModify = true;	// doesn't make sense to turn off auto sync when syncing entire vault
+			this.plugin.saveData(this.plugin.settings);
+		});
 	}
 }
